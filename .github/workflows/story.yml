@@ -33,6 +33,25 @@ jobs:
           package-manager-cache: false
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm test
+      - name: Wake the media relay
+        if: ${{ (github.event_name == 'schedule' && vars.IG_SCHEDULE_LIVE == 'true') || inputs.publish }}
+        shell: bash
+        env:
+          MEDIA_BASE_URL: ${{ vars.MEDIA_BASE_URL }}
+        run: |
+          if [[ "$MEDIA_BASE_URL" != https://* ]]; then
+            echo 'Set MEDIA_BASE_URL to the HTTPS origin of the media relay.'
+            exit 1
+          fi
+          for attempt in {1..15}; do
+            if [[ "$(curl --proto '=https' --fail --silent --max-time 5 "${MEDIA_BASE_URL%/}/health")" == OK ]]; then
+              echo 'Media relay is ready.'
+              exit 0
+            fi
+            sleep 5
+          done
+          echo 'Media relay did not respond with OK at /health.'
+          exit 1
       - name: Pick or publish a Story
         shell: bash
         env:
