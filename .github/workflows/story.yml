@@ -1,0 +1,58 @@
+name: Daily Instagram Story
+on:
+  schedule:
+    - cron: '0 3,7 * * *'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish to Instagram instead of previewing
+        type: boolean
+        default: false
+      file_id:
+        description: Choose a specific Drive file ID (optional)
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: instagram-story
+  cancel-in-progress: false
+
+jobs:
+  story:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm test
+      - name: Pick or publish a Story
+        shell: bash
+        env:
+          REQUESTED_LIVE: ${{ (github.event_name == 'schedule' && vars.IG_SCHEDULE_LIVE == 'true') || inputs.publish }}
+          REQUESTED_FILE_ID: ${{ inputs.file_id }}
+          IG_ALLOW_LIVE: ${{ vars.IG_ALLOW_LIVE }}
+          DRIVE_STORIES_FOLDER_ID: ${{ vars.DRIVE_STORIES_FOLDER_ID }}
+          DRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.DRIVE_SERVICE_ACCOUNT_JSON }}
+          MEDIA_BASE_URL: ${{ vars.MEDIA_BASE_URL }}
+          MEDIA_SIGNING_KEY: ${{ secrets.MEDIA_SIGNING_KEY }}
+          IG_USER_ID: ${{ vars.IG_USER_ID }}
+          IG_EXPECTED_USERNAME: salonmurahjakarta
+          IG_API_VERSION: ${{ vars.IG_API_VERSION }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: |
+          args=()
+          if [[ -n "$REQUESTED_FILE_ID" ]]; then
+            args+=(--file-id "$REQUESTED_FILE_ID")
+          fi
+          if [[ "$REQUESTED_LIVE" == "true" ]]; then
+            args+=(--live)
+          fi
+          npm run story -- "${args[@]}"
