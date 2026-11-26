@@ -1,0 +1,23 @@
+name: Cron diagnostic
+
+# Temporary test window on November 26, 14:20–15:50 WIB.
+# Remove this workflow after checking the scheduled run history.
+on:
+  schedule:
+    - cron: '20,30,40,50 7,8 26 11 *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  report:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    env:
+      EVENT_NAME: ${{ github.event_name }}
+      SCHEDULE: ${{ github.event.schedule }}
+    steps:
+      - name: Report the trigger and time
+        run: |
+          printf 'Event: %s\nCron: %s\n' "$EVENT_NAME" "$SCHEDULE"
+          date -u '+Runner started at %Y-%m-%d %H:%M:%S UTC'
