@@ -1,7 +1,7 @@
 name: Daily Instagram Story
 on:
   schedule:
-    - cron: '0 3,7 * * *'
+    - cron: '5 3,7 * * *'
   workflow_dispatch:
     inputs:
       publish:

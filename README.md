@@ -1,6 +1,6 @@
 # Instagram Story Automation
 
-Drop finished JPG, JPEG, or MP4 files into one private Google Drive folder. GitHub Actions schedules one Story at 10:00 a.m. and one at 2:00 p.m. WIB (03:00 and 07:00 UTC). GitHub can start scheduled jobs late. Each run randomly selects one eligible file, so consecutive slots can pick the same file. An empty folder skips publishing.
+Drop finished JPG, JPEG, or MP4 files into one private Google Drive folder. GitHub Actions schedules one Story at 10:05 a.m. and one at 2:05 p.m. WIB (03:05 and 07:05 UTC) to avoid the top of the hour. GitHub can delay or drop scheduled runs. Each run randomly selects one eligible file, so consecutive slots can pick the same file. An empty folder skips publishing.
 
 GitHub Pages serves static files. GitHub Actions runs this Node.js job. The small Express app runs on a web host such as Render and streams the selected file from Google Drive to Meta through a signed HTTPS link valid for 15 minutes. Drive stays private and the file is streamed without being copied into a bucket. Your laptop can be off. To drop files through Windows File Explorer, use the same folder through Google Drive for desktop and let it sync before the run.
 
