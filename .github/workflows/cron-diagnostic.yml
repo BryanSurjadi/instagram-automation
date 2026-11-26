@@ -4,8 +4,7 @@ name: Cron diagnostic
 # Remove this workflow after checking the scheduled run history.
 on:
   schedule:
-    - cron: '20,30,40,50 7 26 11 *'
-    - cron: '20,30,40,50 8 26 11 *'
+        - cron: '5,10,15,20,30,40,50 8 26 11 *'
   workflow_dispatch:
 
 permissions: {}
